@@ -1,0 +1,368 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+{%- liquid
+  assign illustration = section.settings.illustration
+  assign illustration_mobile = section.settings.illustration_mobile
+  assign bottom_link = section.settings.bottom_button_link
+-%}
+
+<div class="gift-banner" id="gift-banner-{{ section.id }}">
+  {%- capture bottom_button -%}
+    {%- if section.settings.bottom_button_label != blank -%}
+      <a
+        {% if bottom_link != blank %}href="{{ bottom_link }}"{% else %}role="link" aria-disabled="true"{% endif %}
+        class="gift-banner__btn gift-banner__btn--dark"
+      >
+        <span class="gift-banner__btn-fill" aria-hidden="true"></span>
+        <span class="gift-banner__btn-label">{{ section.settings.bottom_button_label }}</span>
+        <span class="gift-banner__btn-icon" aria-hidden="true">
+          {%- render 'gift-banner-arrow', class: 'gift-banner__arrow--base' -%}
+          {%- render 'gift-banner-arrow', class: 'gift-banner__arrow--hover' -%}
+        </span>
+      </a>
+    {%- endif -%}
+  {%- endcapture -%}
+
+  <div class="gift-banner__hero">
+    <div class="gift-banner__content">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="gift-banner__heading">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+
+      {%- if section.settings.description != blank -%}
+        <div class="gift-banner__description">{{ section.settings.description }}</div>
+      {%- endif -%}
+
+      <div class="gift-banner__cta gift-banner__cta--desktop">{{ bottom_button }}</div>
+    </div>
+
+    <div class="gift-banner__media-wrap">
+      <picture class="gift-banner__media">
+        {%- if illustration_mobile != blank -%}
+          <source media="(max-width: 749px)" srcset="{{ illustration_mobile | image_url: width: 1500 }}">
+        {%- endif -%}
+        {%- if illustration != blank -%}
+          <img
+            src="{{ illustration | image_url: width: 2400 }}"
+            srcset="{{ illustration | image_url: width: 1200 }} 1200w, {{ illustration | image_url: width: 1920 }} 1920w, {{ illustration | image_url: width: 2400 }} 2400w"
+            sizes="100vw"
+            alt="{{ illustration.alt | default: section.settings.heading | escape }}"
+            width="{{ illustration.width }}"
+            height="{{ illustration.height }}"
+            loading="lazy"
+          >
+        {%- else -%}
+          <img
+            src="{{ 'gift-banner-illustration.png' | asset_url }}"
+            alt="{{ section.settings.heading | escape }}"
+            width="1440"
+            height="780"
+            loading="lazy"
+          >
+        {%- endif -%}
+      </picture>
+
+      <div class="gift-banner__cta gift-banner__cta--mobile">{{ bottom_button }}</div>
+    </div>
+  </div>
+
+  {%- if section.settings.bottom_bar_text != blank -%}
+    <div class="gift-banner__bar gift-banner__bar--bottom">
+      <p class="gift-banner__bar-text">{{ section.settings.bottom_bar_text }}</p>
+    </div>
+  {%- endif -%}
+</div>
+
+{% style %}
+  #gift-banner-{{ section.id }} {
+    --gb-dark: {{ section.settings.dark_color }};
+    --gb-light: {{ section.settings.light_color }};
+    --gb-accent: {{ section.settings.accent_color }};
+    --gb-bottom-bar-bg: {{ section.settings.bottom_bar_bg }};
+  }
+{% endstyle %}
+
+{% stylesheet %}
+  .gift-banner {
+    --gb-side-pad: clamp(20px, 9.5vw, 190px);
+    font-family: 'Jost', sans-serif;
+    overflow: hidden;
+  }
+
+  .gift-banner * {
+    box-sizing: border-box;
+  }
+
+  /* ---- bottom bar ---- */
+  .gift-banner__bar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 20px var(--gb-side-pad);
+  }
+
+  .gift-banner__bar--bottom {
+    background: var(--gb-bottom-bar-bg);
+    justify-content: center;
+    padding-block: 14px;
+  }
+
+  .gift-banner__bar-text {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--gb-dark);
+    text-align: center;
+    flex: 1;
+  }
+
+  .gift-banner__bar--bottom .gift-banner__bar-text {
+    flex: none;
+    font-size: 12px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  /* ---- hero ---- */
+  .gift-banner__hero {
+    position: relative;
+    width: 100%;
+    background: var(--gb-light);
+  }
+
+  .gift-banner__media-wrap {
+    position: relative;
+  }
+
+  .gift-banner__media {
+    display: block;
+    width: 100%;
+  }
+
+  .gift-banner__media img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .gift-banner__cta--mobile {
+    display: none;
+  }
+
+  .gift-banner__content {
+    position: absolute;
+    z-index: 2;
+    left: var(--gb-side-pad);
+    top: 60%;
+    width: min(34%, 620px);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .gift-banner__heading {
+    margin: 0;
+    font-weight: 700;
+    font-size: clamp(32px, 4.6vw, 88px);
+    line-height: 1.05;
+    color: var(--gb-dark);
+  }
+
+  .gift-banner__description {
+    margin: 0;
+    font-size: clamp(14px, 1.05vw, 18px);
+    line-height: 1.6;
+    color: var(--gb-dark);
+  }
+
+  .gift-banner__description p {
+    margin: 0;
+  }
+
+  /* ---- buttons + hover fill animation ---- */
+  .gift-banner__btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 28px;
+    overflow: hidden;
+    isolation: isolate;
+    text-decoration: none;
+    font-family: 'Jost', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    transition: color 0.45s ease;
+  }
+
+  .gift-banner__btn-fill {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    transform: translateX(-100%);
+    transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .gift-banner__btn:hover .gift-banner__btn-fill {
+    transform: translateX(0);
+  }
+
+  .gift-banner__btn--dark {
+    background: var(--gb-dark);
+    color: var(--gb-light);
+  }
+
+  .gift-banner__btn--dark .gift-banner__btn-fill {
+    background: var(--gb-accent);
+  }
+
+  .gift-banner__btn--dark:hover {
+    color: var(--gb-dark);
+  }
+
+  .gift-banner__btn-icon {
+    position: relative;
+    width: 18px;
+    height: 12px;
+  }
+
+  .gift-banner__btn-icon svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* each arrow keeps a fixed color for its state so the crossfade reads as a
+     color swap rather than both icons animating through the transition together */
+  .gift-banner__btn--dark .gift-banner__arrow--base { color: var(--gb-light); }
+  .gift-banner__btn--dark .gift-banner__arrow--hover { color: var(--gb-dark); }
+
+  .gift-banner__arrow--base {
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.25s ease 0.18s, transform 0.3s ease 0.18s;
+  }
+
+  .gift-banner__arrow--hover {
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.25s ease;
+  }
+
+  .gift-banner__btn:hover .gift-banner__arrow--base {
+    opacity: 0;
+    transform: translateX(10px);
+    transition-delay: 0s;
+  }
+
+  .gift-banner__btn:hover .gift-banner__arrow--hover {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 0.18s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gift-banner__btn-fill,
+    .gift-banner__arrow--base,
+    .gift-banner__arrow--hover {
+      transition: none;
+    }
+  }
+
+  /* ---- mobile ---- */
+  @media screen and (max-width: 749px) {
+    .gift-banner__bar {
+      padding: 16px 20px;
+      gap: 12px;
+    }
+
+    .gift-banner__hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 20px 0;
+      text-align: center;
+    }
+
+    .gift-banner__content {
+      position: static;
+      width: 100%;
+      align-items: center;
+      text-align: center;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .gift-banner__cta--desktop {
+      display: none;
+    }
+
+    .gift-banner__cta--mobile {
+      display: block;
+      position: absolute;
+      left: 50%;
+      top: 46%;
+      transform: translate(-50%, -50%);
+      width: calc(100% - 40px);
+      max-width: 320px;
+      z-index: 1;
+    }
+
+    .gift-banner__cta--mobile .gift-banner__btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .gift-banner__media-wrap {
+      width: calc(100% + 40px);
+      margin: 0 -20px;
+    }
+
+    .gift-banner__heading {
+      font-size: clamp(28px, 9vw, 40px);
+    }
+
+    .gift-banner__description {
+      font-size: 15px;
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Gift banner",
+  "settings": [
+    { "type": "header", "content": "Hero" },
+    { "type": "image_picker", "id": "illustration", "label": "Illustration image", "info": "Defaults to the bundled illustration when empty." },
+    { "type": "image_picker", "id": "illustration_mobile", "label": "Illustration image (mobile)", "info": "Optional. Falls back to the image above." },
+    { "type": "text", "id": "heading", "label": "Heading", "default": "The Gift Guide" },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "Description",
+      "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>"
+    },
+    { "type": "text", "id": "bottom_button_label", "label": "Button label", "default": "SHOP NOW" },
+    { "type": "url", "id": "bottom_button_link", "label": "Button link" },
+
+    { "type": "header", "content": "Bottom bar" },
+    { "type": "text", "id": "bottom_bar_text", "label": "Bottom bar text", "default": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL" },
+    { "type": "color", "id": "bottom_bar_bg", "label": "Bottom bar background", "default": "#F5F5F5" },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "dark_color", "label": "Dark color", "default": "#000000" },
+    { "type": "color", "id": "light_color", "label": "Light color", "default": "#FFFFFF" },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#FFF544" }
+  ],
+  "presets": [
+    { "name": "Gift banner" }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,874 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+{%- liquid
+  assign bonus_product = section.settings.bonus_product
+  assign trigger_1 = section.settings.trigger_value_1 | strip | downcase
+  assign trigger_2 = section.settings.trigger_value_2 | strip | downcase
+  assign bonus_variant = bonus_product.selected_or_first_available_variant
+-%}
+
+<div
+  class="gift-grid"
+  id="gift-grid-{{ section.id }}"
+  data-trigger1="{{ trigger_1 }}"
+  data-trigger2="{{ trigger_2 }}"
+  {% if bonus_variant %}data-bonus-variant-id="{{ bonus_variant.id }}"{% endif %}
+>
+  {%- if section.settings.heading != blank -%}
+    <h2 class="gift-grid__heading">{{ section.settings.heading }}</h2>
+  {%- endif -%}
+
+  <div class="gift-grid__grid">
+    {%- for block in section.blocks -%}
+      {%- assign product = block.settings.product -%}
+      {%- if product != blank -%}
+        {%- assign tile_image = block.settings.image | default: product.featured_image -%}
+        <div class="gift-grid__tile" {{ block.shopify_attributes }}>
+          {%- if tile_image != blank -%}
+            <img
+              class="gift-grid__image"
+              src="{{ tile_image | image_url: width: 1000 }}"
+              srcset="{{ tile_image | image_url: width: 500 }} 500w, {{ tile_image | image_url: width: 1000 }} 1000w"
+              sizes="(min-width: 750px) 33vw, 50vw"
+              alt="{{ tile_image.alt | default: product.title | escape }}"
+              width="{{ tile_image.width }}"
+              height="{{ tile_image.height }}"
+              loading="lazy"
+            >
+          {%- endif -%}
+
+          <button
+            type="button"
+            class="gift-grid__hotspot"
+            style="left: {{ block.settings.hotspot_x }}%; top: {{ block.settings.hotspot_y }}%;"
+            aria-label="Quick view {{ product.title | escape }}"
+          >
+            <span aria-hidden="true">+</span>
+          </button>
+
+          {%- capture variants_json -%}
+            [
+              {%- for variant in product.variants -%}
+                {
+                  "id": {{ variant.id | json }},
+                  "available": {{ variant.available | json }},
+                  "price": {{ variant.price | money | json }},
+                  "options": {{ variant.options | json }}
+                }{% unless forloop.last %},{% endunless %}
+              {%- endfor -%}
+            ]
+          {%- endcapture -%}
+
+          {%- capture options_json -%}
+            [
+              {%- for option in product.options_with_values -%}
+                { "name": {{ option.name | json }}, "values": {{ option.values | json }} }{% unless forloop.last %},{% endunless %}
+              {%- endfor -%}
+            ]
+          {%- endcapture -%}
+
+          <script type="application/json" data-product-json>
+            {
+              "title": {{ product.title | json }},
+              "price": {{ product.price | money | json }},
+              "description": {{ product.description | json }},
+              "image": {{ tile_image | image_url: width: 1200 | json }},
+              "options": {{ options_json }},
+              "variants": {{ variants_json }}
+            }
+          </script>
+        </div>
+      {%- endif -%}
+    {%- endfor -%}
+  </div>
+
+  <div class="gift-grid__overlay" data-gift-grid-overlay hidden>
+    <div class="gift-grid__backdrop" data-gift-grid-backdrop></div>
+
+    <div class="gift-grid__popup gift-grid__popup--mini" data-gift-grid-mini hidden>
+      <button type="button" class="gift-grid__close" data-gift-grid-close aria-label="Close">
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 1L17 17M17 1L1 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="gift-grid__mini-card" data-gift-grid-mini-card role="button" tabindex="0">
+        <img class="gift-grid__mini-image" data-gift-grid-mini-image alt="" width="90" height="90">
+        <div class="gift-grid__mini-info">
+          <p class="gift-grid__mini-title" data-gift-grid-mini-title></p>
+          <p class="gift-grid__mini-price" data-gift-grid-mini-price></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="gift-grid__popup gift-grid__popup--modal" data-gift-grid-modal hidden>
+      <button type="button" class="gift-grid__close" data-gift-grid-close aria-label="Close">
+        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 1L17 17M17 1L1 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </button>
+      <div class="gift-grid__modal-card">
+        <div class="gift-grid__modal-top">
+          <img class="gift-grid__modal-image" data-gift-grid-modal-image alt="" width="90" height="110">
+          <div class="gift-grid__modal-info">
+            <p class="gift-grid__modal-title" data-gift-grid-modal-title></p>
+            <p class="gift-grid__modal-price" data-gift-grid-modal-price></p>
+          </div>
+        </div>
+        <p class="gift-grid__modal-description" data-gift-grid-modal-description></p>
+        <div class="gift-grid__modal-options" data-gift-grid-modal-options></div>
+        <p class="gift-grid__modal-message" data-gift-grid-modal-message hidden></p>
+        <button type="button" class="gift-grid__btn" data-gift-grid-add-to-cart disabled>
+          <span class="gift-grid__btn-fill" aria-hidden="true"></span>
+          <span class="gift-grid__btn-label">Add to cart</span>
+          <span class="gift-grid__btn-icon" aria-hidden="true">
+            {%- render 'gift-banner-arrow', class: 'gift-grid__arrow--base' -%}
+            {%- render 'gift-banner-arrow', class: 'gift-grid__arrow--hover' -%}
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var root = document.getElementById('gift-grid-{{ section.id }}');
+    if (!root) return;
+
+    var overlay = root.querySelector('[data-gift-grid-overlay]');
+    var backdrop = root.querySelector('[data-gift-grid-backdrop]');
+    var mini = root.querySelector('[data-gift-grid-mini]');
+    var miniCard = root.querySelector('[data-gift-grid-mini-card]');
+    var miniImage = root.querySelector('[data-gift-grid-mini-image]');
+    var miniTitle = root.querySelector('[data-gift-grid-mini-title]');
+    var miniPrice = root.querySelector('[data-gift-grid-mini-price]');
+    var modal = root.querySelector('[data-gift-grid-modal]');
+    var modalImage = root.querySelector('[data-gift-grid-modal-image]');
+    var modalTitle = root.querySelector('[data-gift-grid-modal-title]');
+    var modalPrice = root.querySelector('[data-gift-grid-modal-price]');
+    var modalDescription = root.querySelector('[data-gift-grid-modal-description]');
+    var modalOptions = root.querySelector('[data-gift-grid-modal-options]');
+    var modalMessage = root.querySelector('[data-gift-grid-modal-message]');
+    var addToCartBtn = root.querySelector('[data-gift-grid-add-to-cart]');
+    var addToCartLabel = addToCartBtn.querySelector('.gift-grid__btn-label');
+    var closeButtons = root.querySelectorAll('[data-gift-grid-close]');
+
+    var trigger1 = root.dataset.trigger1;
+    var trigger2 = root.dataset.trigger2;
+    var bonusVariantId = root.dataset.bonusVariantId;
+
+    var currentProduct = null;
+    var selected = [];
+    var resolvedVariant = null;
+
+    function openOverlay() {
+      overlay.hidden = false;
+      document.documentElement.classList.add('gift-grid-lock-scroll');
+    }
+
+    function closeOverlay() {
+      overlay.hidden = true;
+      mini.hidden = true;
+      modal.hidden = true;
+      document.documentElement.classList.remove('gift-grid-lock-scroll');
+      currentProduct = null;
+    }
+
+    function setBackdrop(imageUrl) {
+      backdrop.style.backgroundImage = imageUrl ? 'url(' + imageUrl + ')' : 'none';
+    }
+
+    function openMini(product) {
+      currentProduct = product;
+      setBackdrop(product.image);
+      miniImage.src = product.image;
+      miniImage.alt = product.title;
+      miniTitle.textContent = product.title;
+      miniPrice.textContent = product.price;
+      modal.hidden = true;
+      mini.hidden = false;
+      openOverlay();
+    }
+
+    // Resolves the variant matching the current option selections. Variant
+    // "options" arrays are positional (e.g. ["Blue", "Small"]), so once every
+    // position has a value we can match them directly against each variant.
+    function updateVariant(product) {
+      resolvedVariant = null;
+      var allSelected = selected.length && selected.indexOf(null) === -1 && selected.indexOf('') === -1;
+
+      if (allSelected) {
+        for (var i = 0; i < product.variants.length; i++) {
+          var variant = product.variants[i];
+          var isMatch = variant.options.length === selected.length;
+          for (var j = 0; isMatch && j < variant.options.length; j++) {
+            if (variant.options[j] !== selected[j]) isMatch = false;
+          }
+          if (isMatch) {
+            resolvedVariant = variant;
+            break;
+          }
+        }
+      }
+
+      modalMessage.hidden = true;
+
+      if (resolvedVariant) {
+        modalPrice.textContent = resolvedVariant.price;
+        addToCartBtn.disabled = !resolvedVariant.available;
+        addToCartLabel.textContent = resolvedVariant.available ? 'Add to cart' : 'Sold out';
+      } else {
+        modalPrice.textContent = product.price;
+        addToCartBtn.disabled = true;
+        addToCartLabel.textContent = 'Add to cart';
+      }
+    }
+
+    // Builds one control per product option. Small option sets named
+    // "Color"/"Colour" get the sliding pill selector; everything else (e.g.
+    // "Size") gets a dropdown. Rebuilt fresh per product since option count
+    // and names vary.
+    function buildOptionControls(product) {
+      modalOptions.innerHTML = '';
+      selected = product.options.map(function () {
+        return null;
+      });
+
+      product.options.forEach(function (option, index) {
+        var group = document.createElement('div');
+        group.className = 'gift-grid__option-group';
+
+        var label = document.createElement('p');
+        label.className = 'gift-grid__option-label';
+        label.textContent = option.name;
+        group.appendChild(label);
+
+        var isSwatchStyle = /colou?r/i.test(option.name) && option.values.length <= 4;
+
+        if (isSwatchStyle) {
+          var pillWrap = document.createElement('div');
+          pillWrap.className = 'gift-grid__pills';
+          pillWrap.style.setProperty('--count', option.values.length);
+
+          // Indicator slides between buttons via translateX(index * 100%);
+          // each button occupies an equal share of the row (--count).
+          var indicator = document.createElement('span');
+          indicator.className = 'gift-grid__pill-indicator';
+          pillWrap.appendChild(indicator);
+
+          option.values.forEach(function (value, valueIndex) {
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'gift-grid__pill';
+            btn.textContent = value;
+            btn.addEventListener('click', function () {
+              selected[index] = value;
+              pillWrap.querySelectorAll('.gift-grid__pill').forEach(function (b) {
+                b.classList.remove('is-selected');
+              });
+              btn.classList.add('is-selected');
+              indicator.style.opacity = '1';
+              indicator.style.transform = 'translateX(' + valueIndex * 100 + '%)';
+              updateVariant(product);
+            });
+            pillWrap.appendChild(btn);
+          });
+
+          group.appendChild(pillWrap);
+        } else {
+          var select = document.createElement('select');
+          select.className = 'gift-grid__select';
+
+          var placeholder = document.createElement('option');
+          placeholder.textContent = 'Choose your ' + option.name.toLowerCase();
+          placeholder.value = '';
+          placeholder.disabled = true;
+          placeholder.selected = true;
+          select.appendChild(placeholder);
+
+          option.values.forEach(function (value) {
+            var opt = document.createElement('option');
+            opt.value = value;
+            opt.textContent = value;
+            select.appendChild(opt);
+          });
+
+          select.addEventListener('change', function () {
+            selected[index] = select.value;
+            updateVariant(product);
+          });
+
+          var selectWrap = document.createElement('div');
+          selectWrap.className = 'gift-grid__select-wrap';
+          selectWrap.appendChild(select);
+
+          var chevron = document.createElement('span');
+          chevron.className = 'gift-grid__select-chevron';
+          chevron.setAttribute('aria-hidden', 'true');
+          chevron.innerHTML =
+            '<svg viewBox="0 0 12 8" fill="none"><path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          selectWrap.appendChild(chevron);
+
+          group.appendChild(selectWrap);
+        }
+
+        modalOptions.appendChild(group);
+      });
+    }
+
+    function openModal(product) {
+      currentProduct = product;
+      setBackdrop(product.image);
+      modalImage.src = product.image;
+      modalImage.alt = product.title;
+      modalTitle.textContent = product.title;
+      modalPrice.textContent = product.price;
+      modalDescription.innerHTML = product.description;
+
+      buildOptionControls(product);
+      updateVariant(product);
+
+      mini.hidden = true;
+      modal.hidden = false;
+      openOverlay();
+    }
+
+    root.querySelectorAll('.gift-grid__hotspot').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var tile = btn.closest('.gift-grid__tile');
+        var json = tile.querySelector('script[data-product-json]');
+        var product = JSON.parse(json.textContent);
+        openMini(product);
+      });
+    });
+
+    miniCard.addEventListener('click', function () {
+      if (currentProduct) openModal(currentProduct);
+    });
+
+    miniCard.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        if (currentProduct) openModal(currentProduct);
+      }
+    });
+
+    closeButtons.forEach(function (btn) {
+      btn.addEventListener('click', closeOverlay);
+    });
+
+    backdrop.addEventListener('click', closeOverlay);
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !overlay.hidden) closeOverlay();
+    });
+
+    addToCartBtn.addEventListener('click', function () {
+      if (!resolvedVariant || !resolvedVariant.available) return;
+
+      addToCartBtn.disabled = true;
+
+      var items = [{ id: resolvedVariant.id, quantity: 1 }];
+
+      // Cross-sell rule: if the chosen variant's option values include both
+      // configured trigger values (e.g. "Black" + "Medium"), add the bonus
+      // product's variant as a second line item in the same request.
+      var values = resolvedVariant.options.map(function (value) {
+        return (value || '').toLowerCase();
+      });
+      var hasBoth = trigger1 && trigger2 && values.indexOf(trigger1) !== -1 && values.indexOf(trigger2) !== -1;
+
+      if (hasBoth && bonusVariantId) {
+        items.push({ id: parseInt(bonusVariantId, 10), quantity: 1 });
+      }
+
+      fetch(window.routes.cart_add_url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({ items: items }),
+      })
+        .then(function (response) {
+          return response.json().then(function (data) {
+            return { ok: response.ok, data: data };
+          });
+        })
+        .then(function (result) {
+          addToCartBtn.disabled = false;
+          modalMessage.classList.toggle('is-error', !result.ok);
+          modalMessage.hidden = false;
+
+          if (!result.ok) {
+            modalMessage.textContent = result.data.description || result.data.message || 'Something went wrong.';
+            return;
+          }
+
+          modalMessage.textContent = hasBoth ? 'Added to cart (+ Soft Winter Jacket)!' : 'Added to cart!';
+
+          if (typeof publish === 'function' && typeof PUB_SUB_EVENTS === 'object') {
+            publish(PUB_SUB_EVENTS.cartUpdate, { source: 'gift-grid', cartData: result.data });
+          }
+        })
+        .catch(function () {
+          addToCartBtn.disabled = false;
+          modalMessage.classList.add('is-error');
+          modalMessage.textContent = 'Something went wrong.';
+          modalMessage.hidden = false;
+        });
+    });
+  })();
+</script>
+
+{% style %}
+  #gift-grid-{{ section.id }} {
+    --gg-dark: {{ section.settings.dark_color }};
+    --gg-light: {{ section.settings.light_color }};
+    --gg-accent: {{ section.settings.accent_color }};
+  }
+{% endstyle %}
+
+{% stylesheet %}
+  html.gift-grid-lock-scroll {
+    overflow: hidden;
+  }
+
+  .gift-grid {
+    --gg-side-pad: clamp(20px, 9.5vw, 190px);
+    font-family: 'Jost', sans-serif;
+    padding: 60px var(--gg-side-pad);
+  }
+
+  .gift-grid * {
+    box-sizing: border-box;
+  }
+
+  .gift-grid__heading {
+    margin: 0 0 32px;
+    text-align: center;
+    font-size: clamp(24px, 2.6vw, 34px);
+    font-style: italic;
+    font-weight: 500;
+  }
+
+  .gift-grid__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+
+  .gift-grid__tile {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    overflow: hidden;
+    background: #f2f2f2;
+  }
+
+  .gift-grid__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .gift-grid__hotspot {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 0;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--gg-dark);
+    font-size: 18px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .gift-grid__hotspot:hover {
+    background: #fff;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+
+  /* ---- popups ---- */
+  .gift-grid__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .gift-grid__overlay[hidden] {
+    display: none;
+  }
+
+  .gift-grid__backdrop {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(30px) brightness(0.55);
+    transform: scale(1.15);
+    cursor: pointer;
+  }
+
+  .gift-grid__popup {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+
+  .gift-grid__close {
+    position: absolute;
+    top: -48px;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 0;
+    background: #fff;
+    color: var(--gg-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  }
+
+  .gift-grid__close svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .gift-grid__mini-card {
+    background: var(--gg-light);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px;
+    width: min(100%, 420px);
+    margin: 0 auto;
+    cursor: pointer;
+  }
+
+  .gift-grid__mini-image {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .gift-grid__mini-title {
+    margin: 0 0 10px;
+    font-size: 20px;
+    color: var(--gg-dark);
+  }
+
+  .gift-grid__mini-price {
+    margin: 0;
+    font-size: 22px;
+    color: var(--gg-dark);
+  }
+
+  .gift-grid__modal-card {
+    background: var(--gg-light);
+    width: min(100%, 380px);
+    margin: 0 auto;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .gift-grid__modal-top {
+    display: flex;
+    gap: 16px;
+  }
+
+  .gift-grid__modal-image {
+    width: 90px;
+    height: 110px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .gift-grid__modal-title {
+    margin: 0 0 8px;
+    font-size: 18px;
+    color: var(--gg-dark);
+  }
+
+  .gift-grid__modal-price {
+    margin: 0;
+    font-size: 18px;
+    color: var(--gg-dark);
+  }
+
+  .gift-grid__modal-description {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.55;
+    color: #444;
+  }
+
+  .gift-grid__modal-options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .gift-grid__option-label {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: var(--gg-dark);
+  }
+
+  .gift-grid__pills {
+    position: relative;
+    display: flex;
+    border: 1px solid var(--gg-dark);
+    overflow: hidden;
+  }
+
+  .gift-grid__pill-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: calc(100% / var(--count, 1));
+    background: var(--gg-dark);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+    z-index: 0;
+  }
+
+  .gift-grid__pill {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    padding: 14px 8px;
+    border: 0;
+    border-right: 1px solid var(--gg-dark);
+    background: transparent;
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    color: var(--gg-dark);
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  .gift-grid__pill:last-child {
+    border-right: 0;
+  }
+
+  .gift-grid__pill.is-selected {
+    color: var(--gg-light);
+  }
+
+  .gift-grid__select-wrap {
+    position: relative;
+  }
+
+  .gift-grid__select {
+    width: 100%;
+    padding: 14px 40px 14px 14px;
+    border: 1px solid var(--gg-dark);
+    background: var(--gg-light);
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    color: var(--gg-dark);
+    appearance: none;
+    cursor: pointer;
+  }
+
+  .gift-grid__select-chevron {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    width: 12px;
+    height: 8px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--gg-dark);
+  }
+
+  .gift-grid__select-chevron svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .gift-grid__modal-message {
+    margin: 0;
+    font-size: 13px;
+    color: #1a7a3c;
+  }
+
+  .gift-grid__modal-message.is-error {
+    color: #c0392b;
+  }
+
+  /* ---- add to cart button (shared hover fill + arrow swap pattern) ---- */
+  .gift-grid__btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 16px 28px;
+    overflow: hidden;
+    isolation: isolate;
+    border: 0;
+    width: 100%;
+    text-decoration: none;
+    font-family: 'Jost', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    background: var(--gg-dark);
+    color: var(--gg-light);
+    cursor: pointer;
+    transition: color 0.45s ease;
+  }
+
+  .gift-grid__btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .gift-grid__btn-fill {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--gg-accent);
+    transform: translateX(-100%);
+    transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .gift-grid__btn:not(:disabled):hover .gift-grid__btn-fill {
+    transform: translateX(0);
+  }
+
+  .gift-grid__btn:not(:disabled):hover {
+    color: var(--gg-dark);
+  }
+
+  .gift-grid__btn-icon {
+    position: relative;
+    width: 18px;
+    height: 12px;
+  }
+
+  .gift-grid__btn-icon svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .gift-grid__arrow--base {
+    color: var(--gg-light);
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.25s ease 0.18s, transform 0.3s ease 0.18s;
+  }
+
+  .gift-grid__arrow--hover {
+    color: var(--gg-dark);
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.25s ease;
+  }
+
+  .gift-grid__btn:not(:disabled):hover .gift-grid__arrow--base {
+    opacity: 0;
+    transform: translateX(10px);
+    transition-delay: 0s;
+  }
+
+  .gift-grid__btn:not(:disabled):hover .gift-grid__arrow--hover {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 0.18s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gift-grid__btn-fill,
+    .gift-grid__arrow--base,
+    .gift-grid__arrow--hover,
+    .gift-grid__pill-indicator {
+      transition: none;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .gift-grid {
+      padding: 40px 20px;
+    }
+
+    .gift-grid__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+{% endstylesheet %}
+
+{% schema %}
+{
+  "name": "Gift grid",
+  "settings": [
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "header", "content": "Cross-sell rule" },
+    {
+      "type": "paragraph",
+      "content": "When the customer's selected variant matches both trigger values below, the bonus product is added to the cart alongside it automatically."
+    },
+    { "type": "product", "id": "bonus_product", "label": "Bonus product", "info": "e.g. Soft Winter Jacket" },
+    { "type": "text", "id": "trigger_value_1", "label": "Trigger option value 1", "default": "Black" },
+    { "type": "text", "id": "trigger_value_2", "label": "Trigger option value 2", "default": "Medium" },
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "dark_color", "label": "Dark color", "default": "#000000" },
+    { "type": "color", "id": "light_color", "label": "Light color", "default": "#FFFFFF" },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#FFF544" }
+  ],
+  "blocks": [
+    {
+      "type": "product_tile",
+      "name": "Product tile",
+      "settings": [
+        { "type": "product", "id": "product", "label": "Product" },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom tile image",
+          "info": "Optional. Defaults to the product's featured image."
+        },
+        { "type": "range", "id": "hotspot_x", "label": "Hotspot horizontal position", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 50 },
+        { "type": "range", "id": "hotspot_y", "label": "Hotspot vertical position", "min": 0, "max": 100, "step": 1, "unit": "%", "default": 50 }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "presets": [
+    {
+      "name": "Gift grid",
+      "blocks": [
+        { "type": "product_tile" },
+        { "type": "product_tile" },
+        { "type": "product_tile" },
+        { "type": "product_tile" },
+        { "type": "product_tile" },
+        { "type": "product_tile" }
+      ]
+    }
+  ]
+}
+{% endschema %}
