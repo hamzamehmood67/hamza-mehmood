@@ -1,0 +1,224 @@
+.gift-header-bar {
+  --ghb-side-pad: clamp(20px, 9.5vw, 190px);
+  font-family: 'Jost', sans-serif;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 20px var(--ghb-side-pad);
+  background: var(--ghb-bg);
+}
+
+.gift-header-bar * {
+  box-sizing: border-box;
+}
+
+.gift-header-bar__row,
+.gift-header-bar__panel,
+.gift-header-bar__panel-inner {
+  display: contents;
+}
+
+.gift-header-bar__toggle {
+  display: none;
+}
+
+.gift-header-bar__logo {
+  margin: 0;
+  font-size: var(--ghb-logo-size-desktop, 22px);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--ghb-dark, #000000) !important;
+  white-space: nowrap;
+}
+
+.gift-header-bar__text {
+  margin: 0;
+  min-width: 0;
+  font-size: var(--ghb-text-size-desktop, 14px);
+  font-weight: 400;
+  color: var(--ghb-dark, #000000) !important;
+  text-align: center;
+  flex: 1;
+}
+
+/* ---- button + hover fill animation ---- */
+.gift-header-bar__btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 28px;
+  overflow: hidden;
+  isolation: isolate;
+  text-decoration: none;
+  font-family: 'Jost', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  background: var(--ghb-accent);
+  color: var(--ghb-dark, #000000) !important;
+  transition: color 0.45s ease;
+}
+
+.gift-header-bar__btn-fill {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: var(--ghb-dark);
+  transform: translateX(-100%);
+  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.gift-header-bar__btn:hover .gift-header-bar__btn-fill {
+  transform: translateX(0);
+}
+
+.gift-header-bar__btn:hover {
+  color: var(--ghb-light, #ffffff) !important;
+}
+
+.gift-header-bar__btn-icon {
+  position: relative;
+  width: 18px;
+  height: 12px;
+}
+
+.gift-header-bar__btn-icon svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* each arrow keeps a fixed color for its state so the crossfade reads as a
+   color swap rather than both icons animating through the transition together */
+.gift-header-bar__arrow--base {
+  color: var(--ghb-dark, #000000) !important;
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.25s ease 0.18s, transform 0.3s ease 0.18s;
+}
+
+.gift-header-bar__arrow--hover {
+  color: var(--ghb-light, #ffffff) !important;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.2s ease, transform 0.25s ease;
+}
+
+.gift-header-bar__btn:hover .gift-header-bar__arrow--base {
+  opacity: 0;
+  transform: translateX(10px);
+  transition-delay: 0s;
+}
+
+.gift-header-bar__btn:hover .gift-header-bar__arrow--hover {
+  opacity: 1;
+  transform: translateX(0);
+  transition-delay: 0.18s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gift-header-bar__btn-fill,
+  .gift-header-bar__arrow--base,
+  .gift-header-bar__arrow--hover {
+    transition: none;
+  }
+}
+
+@media screen and (max-width: 749px) {
+  .gift-header-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 0;
+  }
+
+  .gift-header-bar__row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    padding: 16px 20px;
+  }
+
+  .gift-header-bar__toggle {
+    display: inline-flex;
+    justify-self: start;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--ghb-dark, #000000) !important;
+    cursor: pointer;
+  }
+
+  .gift-header-bar__toggle-icon {
+    position: relative;
+    width: 18px;
+    height: 14px;
+  }
+
+  .gift-header-bar__toggle-icon svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: opacity 0.2s ease, transform 0.25s ease;
+  }
+
+  .gift-header-bar__icon-close {
+    opacity: 0;
+    transform: rotate(-45deg) scale(0.7);
+  }
+
+  .gift-header-bar.is-open .gift-header-bar__icon-burger {
+    opacity: 0;
+    transform: rotate(45deg) scale(0.7);
+  }
+
+  .gift-header-bar.is-open .gift-header-bar__icon-close {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+
+  .gift-header-bar__logo {
+    grid-column: 2;
+    justify-self: center;
+    font-size: var(--ghb-logo-size-mobile, 18px);
+  }
+
+  .gift-header-bar__panel {
+    display: grid;
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transition: grid-template-rows 0.35s ease, opacity 0.25s ease;
+  }
+
+  .gift-header-bar__panel-inner {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .gift-header-bar.is-open .gift-header-bar__panel {
+    grid-template-rows: 1fr;
+    opacity: 1;
+  }
+
+  .gift-header-bar__panel .gift-header-bar__text {
+    text-align: center;
+    font-size: var(--ghb-text-size-mobile, 13px);
+    padding: 0 20px 14px;
+  }
+
+  .gift-header-bar__panel .gift-header-bar__btn {
+    margin: 0 20px 20px;
+    justify-content: center;
+  }
+}
