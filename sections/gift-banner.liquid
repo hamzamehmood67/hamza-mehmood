@@ -6,6 +6,10 @@
   assign illustration = section.settings.illustration
   assign illustration_mobile = section.settings.illustration_mobile
   assign bottom_link = section.settings.bottom_button_link
+  assign description_mobile = section.settings.description_mobile
+  if description_mobile == blank
+    assign description_mobile = section.settings.description
+  endif
 -%}
 
 <div class="gift-banner" id="gift-banner-{{ section.id }}">
@@ -32,7 +36,11 @@
       {%- endif -%}
 
       {%- if section.settings.description != blank -%}
-        <div class="gift-banner__description">{{ section.settings.description }}</div>
+        <div class="gift-banner__description gift-banner__description--desktop">{{ section.settings.description }}</div>
+      {%- endif -%}
+
+      {%- if description_mobile != blank -%}
+        <div class="gift-banner__description gift-banner__description--mobile">{{ description_mobile }}</div>
       {%- endif -%}
 
       <div class="gift-banner__cta gift-banner__cta--desktop">{{ bottom_button }}</div>
@@ -70,7 +78,12 @@
 
   {%- if section.settings.bottom_bar_text != blank -%}
     <div class="gift-banner__bar gift-banner__bar--bottom">
-      <p class="gift-banner__bar-text">{{ section.settings.bottom_bar_text }}</p>
+      <p class="gift-banner__bar-text gift-banner__bar-text--desktop">{{ section.settings.bottom_bar_text }}</p>
+      {%- if section.settings.bottom_bar_text_mobile != blank -%}
+        <p class="gift-banner__bar-text gift-banner__bar-text--mobile">{{ section.settings.bottom_bar_text_mobile }}</p>
+      {%- else -%}
+        <p class="gift-banner__bar-text gift-banner__bar-text--mobile">{{ section.settings.bottom_bar_text }}</p>
+      {%- endif -%}
     </div>
   {%- endif -%}
 </div>
@@ -119,6 +132,10 @@
     color: var(--gb-dark, #000000) !important;
     text-align: center;
     flex: 1;
+  }
+
+  .gift-banner__bar-text--mobile {
+    display: none;
   }
 
   .gift-banner__bar--bottom .gift-banner__bar-text {
@@ -179,6 +196,10 @@
     font-size: var(--gb-description-size-desktop, clamp(14px, 1.05vw, 18px));
     line-height: 1.6;
     color: var(--gb-dark, #000000) !important;
+  }
+
+  .gift-banner__description--mobile {
+    display: none;
   }
 
   .gift-banner__description p {
@@ -286,6 +307,14 @@
       gap: 12px;
     }
 
+    .gift-banner__bar-text--desktop {
+      display: none;
+    }
+
+    .gift-banner__bar-text--mobile {
+      display: block;
+    }
+
     .gift-banner__hero {
       display: flex;
       flex-direction: column;
@@ -337,6 +366,14 @@
       max-width: 300px;
       margin-inline: auto;
     }
+
+    .gift-banner__description--desktop {
+      display: none;
+    }
+
+    .gift-banner__description--mobile {
+      display: block;
+    }
   }
 {% endstylesheet %}
 
@@ -354,6 +391,13 @@
       "label": "Description",
       "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>"
     },
+    {
+      "type": "richtext",
+      "id": "description_mobile",
+      "label": "Description (mobile)",
+      "info": "Optional. Falls back to the description above when blank.",
+      "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination.</p>"
+    },
     { "type": "range", "id": "description_size_desktop", "label": "Description size (desktop)", "min": 12, "max": 24, "step": 1, "unit": "px", "default": 16 },
     { "type": "range", "id": "description_size_mobile", "label": "Description size (mobile)", "min": 12, "max": 20, "step": 1, "unit": "px", "default": 15 },
     { "type": "text", "id": "bottom_button_label", "label": "Button label", "default": "SHOP NOW" },
@@ -361,6 +405,13 @@
 
     { "type": "header", "content": "Bottom bar" },
     { "type": "text", "id": "bottom_bar_text", "label": "Bottom bar text", "default": "SUSTAINABLE, ETHICALLY MADE CLOTHES IN SIZES XXS TO 6XL" },
+    {
+      "type": "text",
+      "id": "bottom_bar_text_mobile",
+      "label": "Bottom bar text (mobile)",
+      "info": "Optional. Falls back to the text above when blank.",
+      "default": "SUSTAINABLE, ETHICALLY MADE ACTIVEWEAR"
+    },
     { "type": "color", "id": "bottom_bar_bg", "label": "Bottom bar background", "default": "#F5F5F5" },
 
     { "type": "header", "content": "Colors" },
