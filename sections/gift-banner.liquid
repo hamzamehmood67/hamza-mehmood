@@ -81,6 +81,8 @@
     --gb-light: {{ section.settings.light_color }};
     --gb-accent: {{ section.settings.accent_color }};
     --gb-bottom-bar-bg: {{ section.settings.bottom_bar_bg }};
+    --gb-description-size-desktop: {{ section.settings.description_size_desktop }}px;
+    --gb-description-size-mobile: {{ section.settings.description_size_mobile }}px;
   }
 {% endstyle %}
 
@@ -111,15 +113,16 @@
 
   .gift-banner__bar-text {
     margin: 0;
+    min-width: 0;
     font-size: 14px;
     font-weight: 400;
-    color: var(--gb-dark);
+    color: var(--gb-dark, #000000) !important;
     text-align: center;
     flex: 1;
   }
 
   .gift-banner__bar--bottom .gift-banner__bar-text {
-    flex: none;
+    flex: 1 1 auto;
     font-size: 12px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
@@ -168,14 +171,14 @@
     font-weight: 700;
     font-size: clamp(32px, 4.6vw, 88px);
     line-height: 1.05;
-    color: var(--gb-dark);
+    color: var(--gb-dark, #000000) !important;
   }
 
   .gift-banner__description {
     margin: 0;
-    font-size: clamp(14px, 1.05vw, 18px);
+    font-size: var(--gb-description-size-desktop, clamp(14px, 1.05vw, 18px));
     line-height: 1.6;
-    color: var(--gb-dark);
+    color: var(--gb-dark, #000000) !important;
   }
 
   .gift-banner__description p {
@@ -215,7 +218,7 @@
 
   .gift-banner__btn--dark {
     background: var(--gb-dark);
-    color: var(--gb-light);
+    color: var(--gb-light, #ffffff) !important;
   }
 
   .gift-banner__btn--dark .gift-banner__btn-fill {
@@ -223,7 +226,7 @@
   }
 
   .gift-banner__btn--dark:hover {
-    color: var(--gb-dark);
+    color: var(--gb-dark, #000000) !important;
   }
 
   .gift-banner__btn-icon {
@@ -241,8 +244,8 @@
 
   /* each arrow keeps a fixed color for its state so the crossfade reads as a
      color swap rather than both icons animating through the transition together */
-  .gift-banner__btn--dark .gift-banner__arrow--base { color: var(--gb-light); }
-  .gift-banner__btn--dark .gift-banner__arrow--hover { color: var(--gb-dark); }
+  .gift-banner__btn--dark .gift-banner__arrow--base { color: var(--gb-light, #ffffff) !important; }
+  .gift-banner__btn--dark .gift-banner__arrow--hover { color: var(--gb-dark, #000000) !important; }
 
   .gift-banner__arrow--base {
     opacity: 1;
@@ -308,10 +311,10 @@
       display: block;
       position: absolute;
       left: 50%;
-      top: 46%;
+      top: 72%;
       transform: translate(-50%, -50%);
       width: calc(100% - 40px);
-      max-width: 320px;
+      max-width: 280px;
       z-index: 1;
     }
 
@@ -330,7 +333,9 @@
     }
 
     .gift-banner__description {
-      font-size: 15px;
+      font-size: var(--gb-description-size-mobile, 15px);
+      max-width: 300px;
+      margin-inline: auto;
     }
   }
 {% endstylesheet %}
@@ -349,6 +354,8 @@
       "label": "Description",
       "default": "<p>Discover Joy: Your Ultimate Holiday Gift Destination. Explore our curated selection and find the perfect gifts to delight your loved ones this holiday season.</p>"
     },
+    { "type": "range", "id": "description_size_desktop", "label": "Description size (desktop)", "min": 12, "max": 24, "step": 1, "unit": "px", "default": 16 },
+    { "type": "range", "id": "description_size_mobile", "label": "Description size (mobile)", "min": 12, "max": 20, "step": 1, "unit": "px", "default": 15 },
     { "type": "text", "id": "bottom_button_label", "label": "Button label", "default": "SHOP NOW" },
     { "type": "url", "id": "bottom_button_link", "label": "Button link" },
 

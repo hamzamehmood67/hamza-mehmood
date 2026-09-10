@@ -1,1 +1,51 @@
-{"name":"t:sections.header.name","type":"header","sections":{"gift-header-bar":{"type":"gift-header-bar","settings":{"logo_text":"TISSO VISON","middle_text":"Find the ideal gift for your loved ones.","button_label":"CHOOSE GIFT","button_link":"","bar_bg":"#F5F5F5","dark_color":"#000000","light_color":"#FFFFFF","accent_color":"#FFF544"}},"header":{"type":"header","settings":{"logo_position":"middle-left","mobile_logo_position":"center","menu":"main-menu","menu_type_desktop":"dropdown","sticky_header_type":"on-scroll-up","show_line_separator":true,"color_scheme":"scheme-1","menu_color_scheme":"scheme-1","enable_country_selector":true,"enable_language_selector":true,"margin_bottom":0,"padding_top":20,"padding_bottom":20}}},"order":["gift-header-bar","header"]}
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "name": "t:sections.header.name",
+  "type": "header",
+  "sections": {
+    "gift-header-bar": {
+      "type": "gift-header-bar",
+      "settings": {
+        "logo_text": "TISSO VISON",
+        "middle_text": "Find the ideal gift for your loved ones.",
+        "button_label": "CHOOSE GIFT",
+        "button_link": "",
+        "bar_bg": "#f5f5f5",
+        "dark_color": "#000000",
+        "light_color": "#ffffff",
+        "accent_color": "#fff544"
+      }
+    },
+    "header": {
+      "type": "header",
+      "disabled": true,
+      "settings": {
+        "logo_position": "middle-left",
+        "mobile_logo_position": "center",
+        "menu": "main-menu",
+        "menu_type_desktop": "dropdown",
+        "sticky_header_type": "on-scroll-up",
+        "show_line_separator": true,
+        "color_scheme": "scheme-1",
+        "menu_color_scheme": "scheme-1",
+        "enable_country_selector": true,
+        "enable_language_selector": true,
+        "margin_bottom": 0,
+        "padding_top": 20,
+        "padding_bottom": 20
+      }
+    }
+  },
+  "order": [
+    "gift-header-bar",
+    "header"
+  ]
+}

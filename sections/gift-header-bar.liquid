@@ -72,6 +72,10 @@
     --ghb-light: {{ section.settings.light_color }};
     --ghb-accent: {{ section.settings.accent_color }};
     --ghb-bg: {{ section.settings.bar_bg }};
+    --ghb-logo-size-desktop: {{ section.settings.logo_size_desktop }}px;
+    --ghb-logo-size-mobile: {{ section.settings.logo_size_mobile }}px;
+    --ghb-text-size-desktop: {{ section.settings.text_size_desktop }}px;
+    --ghb-text-size-mobile: {{ section.settings.text_size_mobile }}px;
   }
 {% endstyle %}
 
@@ -102,18 +106,19 @@
 
   .gift-header-bar__logo {
     margin: 0;
-    font-size: clamp(18px, 1.6vw, 24px);
+    font-size: var(--ghb-logo-size-desktop, 22px);
     font-weight: 700;
     letter-spacing: 0.12em;
-    color: var(--ghb-dark);
+    color: var(--ghb-dark, #000000) !important;
     white-space: nowrap;
   }
 
   .gift-header-bar__text {
     margin: 0;
-    font-size: 14px;
+    min-width: 0;
+    font-size: var(--ghb-text-size-desktop, 14px);
     font-weight: 400;
-    color: var(--ghb-dark);
+    color: var(--ghb-dark, #000000) !important;
     text-align: center;
     flex: 1;
   }
@@ -135,7 +140,7 @@
     letter-spacing: 0.08em;
     white-space: nowrap;
     background: var(--ghb-accent);
-    color: var(--ghb-dark);
+    color: var(--ghb-dark, #000000) !important;
     transition: color 0.45s ease;
   }
 
@@ -153,7 +158,7 @@
   }
 
   .gift-header-bar__btn:hover {
-    color: var(--ghb-light);
+    color: var(--ghb-light, #ffffff) !important;
   }
 
   .gift-header-bar__btn-icon {
@@ -172,14 +177,14 @@
   /* each arrow keeps a fixed color for its state so the crossfade reads as a
      color swap rather than both icons animating through the transition together */
   .gift-header-bar__arrow--base {
-    color: var(--ghb-dark);
+    color: var(--ghb-dark, #000000) !important;
     opacity: 1;
     transform: translateX(0);
     transition: opacity 0.25s ease 0.18s, transform 0.3s ease 0.18s;
   }
 
   .gift-header-bar__arrow--hover {
-    color: var(--ghb-light);
+    color: var(--ghb-light, #ffffff) !important;
     opacity: 0;
     transform: translateX(-10px);
     transition: opacity 0.2s ease, transform 0.25s ease;
@@ -230,7 +235,7 @@
       padding: 0;
       border: 0;
       background: none;
-      color: var(--ghb-dark);
+      color: var(--ghb-dark, #000000) !important;
       cursor: pointer;
     }
 
@@ -266,7 +271,7 @@
     .gift-header-bar__logo {
       grid-column: 2;
       justify-self: center;
-      font-size: 16px;
+      font-size: var(--ghb-logo-size-mobile, 18px);
     }
 
     .gift-header-bar__panel {
@@ -290,7 +295,7 @@
 
     .gift-header-bar__panel .gift-header-bar__text {
       text-align: left;
-      font-size: 13px;
+      font-size: var(--ghb-text-size-mobile, 13px);
       padding: 0 20px 14px;
     }
 
@@ -310,6 +315,13 @@
     { "type": "text", "id": "button_label", "label": "Button label", "default": "CHOOSE GIFT" },
     { "type": "url", "id": "button_link", "label": "Button link" },
     { "type": "color", "id": "bar_bg", "label": "Background", "default": "#F5F5F5" },
+
+    { "type": "header", "content": "Typography" },
+    { "type": "paragraph", "content": "Font sizes for the logo and middle text - set separately for desktop and mobile." },
+    { "type": "range", "id": "logo_size_desktop", "label": "Logo size (desktop)", "min": 14, "max": 40, "step": 1, "unit": "px", "default": 22 },
+    { "type": "range", "id": "logo_size_mobile", "label": "Logo size (mobile)", "min": 12, "max": 32, "step": 1, "unit": "px", "default": 18 },
+    { "type": "range", "id": "text_size_desktop", "label": "Middle text size (desktop)", "min": 10, "max": 24, "step": 1, "unit": "px", "default": 14 },
+    { "type": "range", "id": "text_size_mobile", "label": "Middle text size (mobile)", "min": 10, "max": 20, "step": 1, "unit": "px", "default": 13 },
 
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "dark_color", "label": "Dark color", "default": "#000000" },

@@ -1,6 +1,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=Lustria&display=swap" rel="stylesheet">
 
 {%- liquid
   assign bonus_product = section.settings.bonus_product
@@ -26,27 +26,47 @@
       {%- if product != blank -%}
         {%- assign tile_image = block.settings.image | default: product.featured_image -%}
         <div class="gift-grid__tile" {{ block.shopify_attributes }}>
-          {%- if tile_image != blank -%}
-            <img
-              class="gift-grid__image"
-              src="{{ tile_image | image_url: width: 1000 }}"
-              srcset="{{ tile_image | image_url: width: 500 }} 500w, {{ tile_image | image_url: width: 1000 }} 1000w"
-              sizes="(min-width: 750px) 33vw, 50vw"
-              alt="{{ tile_image.alt | default: product.title | escape }}"
-              width="{{ tile_image.width }}"
-              height="{{ tile_image.height }}"
-              loading="lazy"
-            >
-          {%- endif -%}
+          <div class="gift-grid__image-wrap">
+            {%- if tile_image != blank -%}
+              <img
+                class="gift-grid__image"
+                src="{{ tile_image | image_url: width: 1000 }}"
+                srcset="{{ tile_image | image_url: width: 500 }} 500w, {{ tile_image | image_url: width: 1000 }} 1000w"
+                sizes="(min-width: 750px) 33vw, 50vw"
+                alt="{{ tile_image.alt | default: product.title | escape }}"
+                width="{{ tile_image.width }}"
+                height="{{ tile_image.height }}"
+                loading="lazy"
+              >
+            {%- endif -%}
+          </div>
 
-          <button
-            type="button"
-            class="gift-grid__hotspot"
-            style="left: {{ block.settings.hotspot_x }}%; top: {{ block.settings.hotspot_y }}%;"
-            aria-label="Quick view {{ product.title | escape }}"
-          >
-            <span aria-hidden="true">+</span>
-          </button>
+          <div class="gift-grid__anchor" style="left: {{ block.settings.hotspot_x }}%; top: {{ block.settings.hotspot_y }}%;">
+            <button
+              type="button"
+              class="gift-grid__hotspot"
+              data-gift-grid-hotspot
+              aria-expanded="false"
+              aria-label="Quick view {{ product.title | escape }}"
+            >
+              <span class="gift-grid__hotspot-icon" aria-hidden="true">
+                <span class="gift-grid__hotspot-plus">+</span>
+                <span class="gift-grid__hotspot-close">&times;</span>
+              </span>
+            </button>
+
+            <div class="gift-grid__mini" data-gift-grid-mini hidden>
+              <div class="gift-grid__mini-card" data-gift-grid-mini-card role="button" tabindex="0">
+                {%- if tile_image != blank -%}
+                  <img class="gift-grid__mini-image" src="{{ tile_image | image_url: width: 200 }}" alt="" width="60" height="60">
+                {%- endif -%}
+                <div class="gift-grid__mini-info">
+                  <p class="gift-grid__mini-title">{{ product.title }}</p>
+                  <p class="gift-grid__mini-price">{{ product.price | money }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {%- capture variants_json -%}
             [
@@ -87,44 +107,33 @@
   <div class="gift-grid__overlay" data-gift-grid-overlay hidden>
     <div class="gift-grid__backdrop" data-gift-grid-backdrop></div>
 
-    <div class="gift-grid__popup gift-grid__popup--mini" data-gift-grid-mini hidden>
-      <button type="button" class="gift-grid__close" data-gift-grid-close aria-label="Close">
-        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1 1L17 17M17 1L1 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-        </svg>
-      </button>
-      <div class="gift-grid__mini-card" data-gift-grid-mini-card role="button" tabindex="0">
-        <img class="gift-grid__mini-image" data-gift-grid-mini-image alt="" width="90" height="90">
-        <div class="gift-grid__mini-info">
-          <p class="gift-grid__mini-title" data-gift-grid-mini-title></p>
-          <p class="gift-grid__mini-price" data-gift-grid-mini-price></p>
-        </div>
-      </div>
-    </div>
-
     <div class="gift-grid__popup gift-grid__popup--modal" data-gift-grid-modal hidden>
-      <button type="button" class="gift-grid__close" data-gift-grid-close aria-label="Close">
-        <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M1 1L17 17M17 1L1 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-        </svg>
-      </button>
       <div class="gift-grid__modal-card">
+        <button type="button" class="gift-grid__close" data-gift-grid-close aria-label="Close">
+          <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1 1L17 17M17 1L1 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </button>
         <div class="gift-grid__modal-top">
-          <img class="gift-grid__modal-image" data-gift-grid-modal-image alt="" width="90" height="110">
+          <img class="gift-grid__modal-image" data-gift-grid-modal-image alt="" width="70" height="86">
           <div class="gift-grid__modal-info">
             <p class="gift-grid__modal-title" data-gift-grid-modal-title></p>
             <p class="gift-grid__modal-price" data-gift-grid-modal-price></p>
+            <div class="gift-grid__modal-description" data-gift-grid-modal-description></div>
           </div>
         </div>
-        <p class="gift-grid__modal-description" data-gift-grid-modal-description></p>
         <div class="gift-grid__modal-options" data-gift-grid-modal-options></div>
         <p class="gift-grid__modal-message" data-gift-grid-modal-message hidden></p>
         <button type="button" class="gift-grid__btn" data-gift-grid-add-to-cart disabled>
           <span class="gift-grid__btn-fill" aria-hidden="true"></span>
           <span class="gift-grid__btn-label">Add to cart</span>
           <span class="gift-grid__btn-icon" aria-hidden="true">
-            {%- render 'gift-banner-arrow', class: 'gift-grid__arrow--base' -%}
-            {%- render 'gift-banner-arrow', class: 'gift-grid__arrow--hover' -%}
+            <svg class="gift-grid__arrow--base" viewBox="0 0 34 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 6H33M33 6L27 1M33 6L27 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <svg class="gift-grid__arrow--hover" viewBox="0 0 34 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 6H33M33 6L27 1M33 6L27 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
           </span>
         </button>
       </div>
@@ -137,13 +146,72 @@
     var root = document.getElementById('gift-grid-{{ section.id }}');
     if (!root) return;
 
+    // Maps common color-option values to a swatch hex, since Shopify only
+    // gives us the option's text value, not an actual color. "White" falls
+    // back to a visible gray since true white would disappear on the pill's
+    // white background; anything unrecognized falls back to neutral gray.
+    var COLOR_SWATCH_MAP = {
+      black: '#000000',
+      white: '#bbbbbb',
+      grey: '#808080',
+      gray: '#808080',
+      blue: '#2b4fa2',
+      navy: '#1b2a4a',
+      red: '#c0392b',
+      maroon: '#6e1e2c',
+      burgundy: '#5c1a2b',
+      green: '#2e7d32',
+      olive: '#6b6b2a',
+      khaki: '#c3b091',
+      yellow: '#f1c40f',
+      gold: '#c9a227',
+      pink: '#e59ab3',
+      purple: '#7d3c98',
+      lavender: '#b49bc9',
+      orange: '#e07a2c',
+      brown: '#6b4423',
+      tan: '#d2b48c',
+      beige: '#e8dcc8',
+      cream: '#f2e8d5',
+      teal: '#1a7a6e',
+      turquoise: '#30bfa4',
+      cyan: '#3fb8c9',
+      silver: '#c0c0c0',
+    };
+
+    function getSwatchColor(value) {
+      var key = (value || '').trim().toLowerCase();
+      return COLOR_SWATCH_MAP[key] || '#cccccc';
+    }
+
+    // Products often use different conventions for the same size ("Medium"
+    // vs "M" vs "Med"), so the cross-sell rule below normalizes both the
+    // configured trigger value and the variant's actual option value to a
+    // common form before comparing, instead of requiring an exact match.
+    var SIZE_SYNONYMS = {
+      'extra small': 'xs',
+      xs: 'xs',
+      small: 's',
+      s: 's',
+      medium: 'm',
+      med: 'm',
+      m: 'm',
+      large: 'l',
+      l: 'l',
+      'extra large': 'xl',
+      xl: 'xl',
+      'extra extra large': 'xxl',
+      xxl: 'xxl',
+      '2xl': 'xxl',
+    };
+
+    function normalizeOptionValue(value) {
+      var key = (value || '').trim().toLowerCase();
+      return SIZE_SYNONYMS[key] || key;
+    }
+
     var overlay = root.querySelector('[data-gift-grid-overlay]');
     var backdrop = root.querySelector('[data-gift-grid-backdrop]');
-    var mini = root.querySelector('[data-gift-grid-mini]');
-    var miniCard = root.querySelector('[data-gift-grid-mini-card]');
-    var miniImage = root.querySelector('[data-gift-grid-mini-image]');
-    var miniTitle = root.querySelector('[data-gift-grid-mini-title]');
-    var miniPrice = root.querySelector('[data-gift-grid-mini-price]');
     var modal = root.querySelector('[data-gift-grid-modal]');
     var modalImage = root.querySelector('[data-gift-grid-modal-image]');
     var modalTitle = root.querySelector('[data-gift-grid-modal-title]');
@@ -153,13 +221,12 @@
     var modalMessage = root.querySelector('[data-gift-grid-modal-message]');
     var addToCartBtn = root.querySelector('[data-gift-grid-add-to-cart]');
     var addToCartLabel = addToCartBtn.querySelector('.gift-grid__btn-label');
-    var closeButtons = root.querySelectorAll('[data-gift-grid-close]');
+    var closeButton = root.querySelector('[data-gift-grid-close]');
 
-    var trigger1 = root.dataset.trigger1;
-    var trigger2 = root.dataset.trigger2;
+    var trigger1 = normalizeOptionValue(root.dataset.trigger1);
+    var trigger2 = normalizeOptionValue(root.dataset.trigger2);
     var bonusVariantId = root.dataset.bonusVariantId;
 
-    var currentProduct = null;
     var selected = [];
     var resolvedVariant = null;
 
@@ -170,26 +237,60 @@
 
     function closeOverlay() {
       overlay.hidden = true;
-      mini.hidden = true;
       modal.hidden = true;
       document.documentElement.classList.remove('gift-grid-lock-scroll');
-      currentProduct = null;
     }
 
     function setBackdrop(imageUrl) {
       backdrop.style.backgroundImage = imageUrl ? 'url(' + imageUrl + ')' : 'none';
     }
 
-    function openMini(product) {
-      currentProduct = product;
-      setBackdrop(product.image);
-      miniImage.src = product.image;
-      miniImage.alt = product.title;
-      miniTitle.textContent = product.title;
-      miniPrice.textContent = product.price;
-      modal.hidden = true;
-      mini.hidden = false;
-      openOverlay();
+    // Positions the modal card over the tile that was actually clicked
+    // (rather than always dead-center of the viewport), clamped so it never
+    // renders off-screen regardless of where that tile sits in the grid.
+    function positionModalNear(triggerEl) {
+      var card = modal.querySelector('.gift-grid__modal-card');
+      if (!triggerEl || !card) return;
+
+      var rect = triggerEl.getBoundingClientRect();
+      var margin = 16;
+      var cardWidth = card.offsetWidth;
+      var cardHeight = card.offsetHeight;
+
+      var left = rect.left + rect.width / 2 - cardWidth / 2;
+      var top = rect.top + rect.height / 2 - cardHeight / 2;
+
+      var maxLeft = Math.max(margin, window.innerWidth - cardWidth - margin);
+      var maxTop = Math.max(margin, window.innerHeight - cardHeight - margin);
+
+      card.style.position = 'fixed';
+      card.style.margin = '0';
+      card.style.left = Math.min(Math.max(left, margin), maxLeft) + 'px';
+      card.style.top = Math.min(Math.max(top, margin), maxTop) + 'px';
+    }
+
+    // The mini popup (image/name/price) lives inline in each tile and is
+    // just toggled open/closed; only one can be open at a time and the
+    // hotspot's "+" morphs into "x" while it is.
+    function closeMiniPopup(hotspot) {
+      var anchor = hotspot.closest('.gift-grid__anchor');
+      anchor.querySelector('[data-gift-grid-mini]').hidden = true;
+      hotspot.setAttribute('aria-expanded', 'false');
+      hotspot.classList.remove('is-open');
+    }
+
+    function closeAllMiniPopups() {
+      root.querySelectorAll('[data-gift-grid-hotspot].is-open').forEach(closeMiniPopup);
+    }
+
+    // Closes any open custom size/etc. dropdown (see buildOptionControls).
+    function closeAllSelectLists() {
+      modalOptions.querySelectorAll('.gift-grid__select-list').forEach(function (list) {
+        list.hidden = true;
+      });
+      modalOptions.querySelectorAll('.gift-grid__select-toggle').forEach(function (toggle) {
+        toggle.setAttribute('aria-expanded', 'false');
+      });
     }
 
     // Resolves the variant matching the current option selections. Variant
@@ -227,16 +328,30 @@
     }
 
     // Builds one control per product option. Small option sets named
-    // "Color"/"Colour" get the sliding pill selector; everything else (e.g.
-    // "Size") gets a dropdown. Rebuilt fresh per product since option count
-    // and names vary.
+    // "Color"/"Colour" get the sliding pill selector and are always shown
+    // first (before Size etc.), regardless of the option order set in
+    // Shopify admin. Rebuilt fresh per product since option count/names vary.
     function buildOptionControls(product) {
       modalOptions.innerHTML = '';
       selected = product.options.map(function () {
         return null;
       });
 
-      product.options.forEach(function (option, index) {
+      // Keep each option's original index (used to read/write `selected`
+      // and to match against `variant.options`, which stay in admin order)
+      // while displaying color options first.
+      var displayOrder = product.options.map(function (option, index) {
+        return { option: option, index: index };
+      });
+      displayOrder.sort(function (a, b) {
+        var aIsColor = /colou?r/i.test(a.option.name) ? 0 : 1;
+        var bIsColor = /colou?r/i.test(b.option.name) ? 0 : 1;
+        return aIsColor - bIsColor;
+      });
+
+      displayOrder.forEach(function (entry) {
+        var option = entry.option;
+        var index = entry.index;
         var group = document.createElement('div');
         group.className = 'gift-grid__option-group';
 
@@ -262,7 +377,18 @@
             var btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'gift-grid__pill';
-            btn.textContent = value;
+
+            var swatch = document.createElement('span');
+            swatch.className = 'gift-grid__pill-swatch';
+            swatch.style.background = getSwatchColor(value);
+            swatch.setAttribute('aria-hidden', 'true');
+            btn.appendChild(swatch);
+
+            var pillLabel = document.createElement('span');
+            pillLabel.className = 'gift-grid__pill-label';
+            pillLabel.textContent = value;
+            btn.appendChild(pillLabel);
+
             btn.addEventListener('click', function () {
               selected[index] = value;
               pillWrap.querySelectorAll('.gift-grid__pill').forEach(function (b) {
@@ -278,39 +404,65 @@
 
           group.appendChild(pillWrap);
         } else {
-          var select = document.createElement('select');
-          select.className = 'gift-grid__select';
-
-          var placeholder = document.createElement('option');
-          placeholder.textContent = 'Choose your ' + option.name.toLowerCase();
-          placeholder.value = '';
-          placeholder.disabled = true;
-          placeholder.selected = true;
-          select.appendChild(placeholder);
-
-          option.values.forEach(function (value) {
-            var opt = document.createElement('option');
-            opt.value = value;
-            opt.textContent = value;
-            select.appendChild(opt);
-          });
-
-          select.addEventListener('change', function () {
-            selected[index] = select.value;
-            updateVariant(product);
-          });
-
+          // Native <select> options can't be reliably styled (the open list
+          // is rendered by the OS/browser shell, not the page), so this is a
+          // custom button + listbox instead - fully stylable hover/selected
+          // states, same look everywhere.
           var selectWrap = document.createElement('div');
           selectWrap.className = 'gift-grid__select-wrap';
-          selectWrap.appendChild(select);
+
+          var toggle = document.createElement('button');
+          toggle.type = 'button';
+          toggle.className = 'gift-grid__select-toggle';
+          toggle.setAttribute('aria-haspopup', 'listbox');
+          toggle.setAttribute('aria-expanded', 'false');
+
+          var valueLabel = document.createElement('span');
+          valueLabel.className = 'gift-grid__select-value';
+          valueLabel.textContent = 'Choose your ' + option.name.toLowerCase();
+          toggle.appendChild(valueLabel);
 
           var chevron = document.createElement('span');
           chevron.className = 'gift-grid__select-chevron';
           chevron.setAttribute('aria-hidden', 'true');
           chevron.innerHTML =
             '<svg viewBox="0 0 12 8" fill="none"><path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-          selectWrap.appendChild(chevron);
+          toggle.appendChild(chevron);
 
+          var list = document.createElement('ul');
+          list.className = 'gift-grid__select-list';
+          list.setAttribute('role', 'listbox');
+          list.hidden = true;
+
+          option.values.forEach(function (value) {
+            var item = document.createElement('li');
+            item.className = 'gift-grid__select-option';
+            item.setAttribute('role', 'option');
+            item.textContent = value;
+            item.addEventListener('click', function () {
+              selected[index] = value;
+              valueLabel.textContent = value;
+              list.querySelectorAll('.gift-grid__select-option').forEach(function (li) {
+                li.classList.remove('is-selected');
+              });
+              item.classList.add('is-selected');
+              closeAllSelectLists();
+              updateVariant(product);
+            });
+            list.appendChild(item);
+          });
+
+          toggle.addEventListener('click', function (event) {
+            event.stopPropagation();
+            var wasOpen = !list.hidden;
+            closeAllSelectLists();
+            if (wasOpen) return;
+            list.hidden = false;
+            toggle.setAttribute('aria-expanded', 'true');
+          });
+
+          selectWrap.appendChild(toggle);
+          selectWrap.appendChild(list);
           group.appendChild(selectWrap);
         }
 
@@ -318,8 +470,7 @@
       });
     }
 
-    function openModal(product) {
-      currentProduct = product;
+    function openModal(product, triggerTile) {
       setBackdrop(product.image);
       modalImage.src = product.image;
       modalImage.alt = product.title;
@@ -330,39 +481,63 @@
       buildOptionControls(product);
       updateVariant(product);
 
-      mini.hidden = true;
       modal.hidden = false;
       openOverlay();
+      // Card must be visible (and its final content in place) before we can
+      // measure its rendered size to position it.
+      positionModalNear(triggerTile);
     }
 
-    root.querySelectorAll('.gift-grid__hotspot').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var tile = btn.closest('.gift-grid__tile');
-        var json = tile.querySelector('script[data-product-json]');
-        var product = JSON.parse(json.textContent);
-        openMini(product);
+    function getTileProduct(tile) {
+      return JSON.parse(tile.querySelector('script[data-product-json]').textContent);
+    }
+
+    // Hotspot click toggles that tile's inline mini popup open/closed ("+"
+    // morphs into "x"); opening one closes any other that's open.
+    root.querySelectorAll('[data-gift-grid-hotspot]').forEach(function (hotspot) {
+      hotspot.addEventListener('click', function (event) {
+        event.stopPropagation();
+        var wasOpen = hotspot.classList.contains('is-open');
+        closeAllMiniPopups();
+        if (wasOpen) return;
+
+        var anchor = hotspot.closest('.gift-grid__anchor');
+        anchor.querySelector('[data-gift-grid-mini]').hidden = false;
+        hotspot.setAttribute('aria-expanded', 'true');
+        hotspot.classList.add('is-open');
       });
     });
 
-    miniCard.addEventListener('click', function () {
-      if (currentProduct) openModal(currentProduct);
+    // Clicking the mini card's content opens the full quick-view modal.
+    root.querySelectorAll('[data-gift-grid-mini-card]').forEach(function (card) {
+      card.addEventListener('click', function () {
+        var tile = card.closest('.gift-grid__tile');
+        closeAllMiniPopups();
+        openModal(getTileProduct(tile), tile);
+      });
+      card.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          card.click();
+        }
+      });
     });
 
-    miniCard.addEventListener('keydown', function (event) {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        if (currentProduct) openModal(currentProduct);
-      }
+    // Clicking anywhere outside an open mini popup / dropdown closes it.
+    document.addEventListener('click', function (event) {
+      if (!event.target.closest('.gift-grid__anchor')) closeAllMiniPopups();
+      if (!event.target.closest('.gift-grid__select-wrap')) closeAllSelectLists();
     });
 
-    closeButtons.forEach(function (btn) {
-      btn.addEventListener('click', closeOverlay);
-    });
-
+    closeButton.addEventListener('click', closeOverlay);
     backdrop.addEventListener('click', closeOverlay);
 
     document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && !overlay.hidden) closeOverlay();
+      if (event.key === 'Escape') {
+        closeAllSelectLists();
+        closeAllMiniPopups();
+        if (!overlay.hidden) closeOverlay();
+      }
     });
 
     addToCartBtn.addEventListener('click', function () {
@@ -374,10 +549,10 @@
 
       // Cross-sell rule: if the chosen variant's option values include both
       // configured trigger values (e.g. "Black" + "Medium"), add the bonus
-      // product's variant as a second line item in the same request.
-      var values = resolvedVariant.options.map(function (value) {
-        return (value || '').toLowerCase();
-      });
+      // product's variant as a second line item in the same request. Values
+      // are normalized (see normalizeOptionValue) so "Medium" also matches
+      // a variant using "M".
+      var values = resolvedVariant.options.map(normalizeOptionValue);
       var hasBoth = trigger1 && trigger2 && values.indexOf(trigger1) !== -1 && values.indexOf(trigger2) !== -1;
 
       if (hasBoth && bonusVariantId) {
@@ -425,6 +600,12 @@
     --gg-dark: {{ section.settings.dark_color }};
     --gg-light: {{ section.settings.light_color }};
     --gg-accent: {{ section.settings.accent_color }};
+    --gg-title-size-desktop: {{ section.settings.popup_title_size_desktop }}px;
+    --gg-title-size-mobile: {{ section.settings.popup_title_size_mobile }}px;
+    --gg-price-size-desktop: {{ section.settings.popup_price_size_desktop }}px;
+    --gg-price-size-mobile: {{ section.settings.popup_price_size_mobile }}px;
+    --gg-description-size-desktop: {{ section.settings.popup_description_size_desktop }}px;
+    --gg-description-size-mobile: {{ section.settings.popup_description_size_mobile }}px;
   }
 {% endstyle %}
 
@@ -443,25 +624,37 @@
     box-sizing: border-box;
   }
 
+  /* Figma only shows this heading on mobile - desktop goes straight from
+     the banner into the grid with no heading. */
   .gift-grid__heading {
-    margin: 0 0 32px;
+    display: none;
+    margin: 0 0 24px;
     text-align: center;
-    font-size: clamp(24px, 2.6vw, 34px);
-    font-style: italic;
-    font-weight: 500;
+    font-family: 'Lustria', Georgia, serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 400;
+    color: var(--gg-dark, #000000) !important;
   }
 
   .gift-grid__grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
+    gap: clamp(8px, 1.5vw, 20px);
   }
 
   .gift-grid__tile {
     position: relative;
     aspect-ratio: 3 / 4;
-    overflow: hidden;
     background: #f2f2f2;
+  }
+
+  /* Image cropping lives on its own layer so the hotspot/mini popup (on
+     .gift-grid__anchor, a sibling) are never clipped by it. */
+  .gift-grid__image-wrap {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
   }
 
   .gift-grid__image {
@@ -471,17 +664,19 @@
     object-fit: cover;
   }
 
-  .gift-grid__hotspot {
+  .gift-grid__anchor {
     position: absolute;
     transform: translate(-50%, -50%);
+    z-index: 2;
+  }
+
+  .gift-grid__hotspot {
     width: 32px;
     height: 32px;
     border-radius: 50%;
     border: 0;
     background: rgba(255, 255, 255, 0.9);
-    color: var(--gg-dark);
-    font-size: 18px;
-    line-height: 1;
+    color: var(--gg-dark, #000000) !important;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -492,10 +687,82 @@
 
   .gift-grid__hotspot:hover {
     background: #fff;
-    transform: translate(-50%, -50%) scale(1.08);
+    transform: scale(1.08);
   }
 
-  /* ---- popups ---- */
+  .gift-grid__hotspot-icon {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .gift-grid__hotspot-icon span {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease, transform 0.25s ease;
+  }
+
+  .gift-grid__hotspot-close {
+    opacity: 0;
+    transform: rotate(-45deg) scale(0.7);
+  }
+
+  .gift-grid__hotspot.is-open .gift-grid__hotspot-plus {
+    opacity: 0;
+    transform: rotate(45deg) scale(0.7);
+  }
+
+  .gift-grid__hotspot.is-open .gift-grid__hotspot-close {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+
+  /* ---- mini popup: anchored below the hotspot, inside the tile ---- */
+  .gift-grid__mini {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: min(220px, calc(100vw - 32px));
+  }
+
+  .gift-grid__mini-card {
+    background: var(--gg-light);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+  }
+
+  .gift-grid__mini-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .gift-grid__mini-title {
+    margin: 0 0 4px;
+    font-size: 14px;
+    color: var(--gg-dark, #000000) !important;
+    white-space: nowrap;
+  }
+
+  .gift-grid__mini-price {
+    margin: 0;
+    font-size: 15px;
+    color: var(--gg-dark, #000000) !important;
+  }
+
+  /* ---- full quick-view modal ---- */
   .gift-grid__overlay {
     position: fixed;
     inset: 0;
@@ -526,21 +793,22 @@
     width: 100%;
   }
 
+  /* close button sits inside the modal card's own top-right corner */
   .gift-grid__close {
     position: absolute;
-    top: -48px;
-    right: 0;
-    width: 36px;
-    height: 36px;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     border: 0;
-    background: #fff;
-    color: var(--gg-dark);
+    background: var(--gg-light);
+    color: var(--gg-dark, #000000) !important;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1;
   }
 
   .gift-grid__close svg {
@@ -548,75 +816,73 @@
     height: 14px;
   }
 
-  .gift-grid__mini-card {
-    background: var(--gg-light);
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 24px;
-    width: min(100%, 420px);
-    margin: 0 auto;
-    cursor: pointer;
-  }
-
-  .gift-grid__mini-image {
-    width: 90px;
-    height: 90px;
-    object-fit: cover;
-    flex-shrink: 0;
-  }
-
-  .gift-grid__mini-title {
-    margin: 0 0 10px;
-    font-size: 20px;
-    color: var(--gg-dark);
-  }
-
-  .gift-grid__mini-price {
-    margin: 0;
-    font-size: 22px;
-    color: var(--gg-dark);
-  }
-
   .gift-grid__modal-card {
+    position: relative;
     background: var(--gg-light);
-    width: min(100%, 380px);
+    /* JS repositions this near the clicked tile (position: fixed, explicit
+       left/top) once it's open, so the width already reserves the same
+       16px margin used there. */
+    width: min(calc(100vw - 32px), 340px);
     margin: 0 auto;
-    padding: 28px;
+    padding: 40px 24px 24px;
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 16px;
   }
 
   .gift-grid__modal-top {
     display: flex;
-    gap: 16px;
+    gap: 14px;
   }
 
   .gift-grid__modal-image {
-    width: 90px;
-    height: 110px;
+    width: 70px;
+    height: 86px;
     object-fit: cover;
     flex-shrink: 0;
   }
 
+  /* image + title/price/description all sit together in one column,
+     matching Figma - description is NOT a separate full-width block */
+  .gift-grid__modal-info {
+    min-width: 0;
+  }
+
   .gift-grid__modal-title {
-    margin: 0 0 8px;
-    font-size: 18px;
-    color: var(--gg-dark);
+    margin: 0 0 4px;
+    font-size: var(--gg-title-size-desktop, 15px);
+    color: var(--gg-dark, #000000) !important;
   }
 
   .gift-grid__modal-price {
-    margin: 0;
-    font-size: 18px;
-    color: var(--gg-dark);
+    margin: 0 0 6px;
+    font-size: var(--gg-price-size-desktop, 15px);
+    color: var(--gg-dark, #000000) !important;
   }
 
   .gift-grid__modal-description {
     margin: 0;
-    font-size: 13px;
-    line-height: 1.55;
-    color: #444;
+    font-size: var(--gg-description-size-desktop, 12px);
+    line-height: 1.45;
+    color: #666;
+  }
+
+  .gift-grid__modal-description p {
+    margin: 0;
+  }
+
+  @media screen and (max-width: 749px) {
+    .gift-grid__modal-title {
+      font-size: var(--gg-title-size-mobile, 14px);
+    }
+
+    .gift-grid__modal-price {
+      font-size: var(--gg-price-size-mobile, 14px);
+    }
+
+    .gift-grid__modal-description {
+      font-size: var(--gg-description-size-mobile, 11px);
+    }
   }
 
   .gift-grid__modal-options {
@@ -628,7 +894,7 @@
   .gift-grid__option-label {
     margin: 0 0 8px;
     font-size: 13px;
-    color: var(--gg-dark);
+    color: var(--gg-dark, #000000) !important;
   }
 
   .gift-grid__pills {
@@ -654,15 +920,24 @@
     position: relative;
     z-index: 1;
     flex: 1;
-    padding: 14px 8px;
+    padding: 14px 8px 14px 18px;
     border: 0;
     border-right: 1px solid var(--gg-dark);
     background: transparent;
     font-family: 'Jost', sans-serif;
     font-size: 14px;
-    color: var(--gg-dark);
+    color: var(--gg-dark, #000000) !important;
     cursor: pointer;
     transition: color 0.3s ease;
+  }
+
+  /* full-height color indicator flush against the pill's own left edge */
+  .gift-grid__pill-swatch {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
   }
 
   .gift-grid__pill:last-child {
@@ -670,22 +945,24 @@
   }
 
   .gift-grid__pill.is-selected {
-    color: var(--gg-light);
+    color: var(--gg-light, #ffffff) !important;
   }
 
   .gift-grid__select-wrap {
     position: relative;
   }
 
-  .gift-grid__select {
+  /* Custom dropdown (button + listbox) instead of a native <select>, so
+     every state - including hover - is reliably styleable across browsers. */
+  .gift-grid__select-toggle {
     width: 100%;
     padding: 14px 40px 14px 14px;
     border: 1px solid var(--gg-dark);
     background: var(--gg-light);
     font-family: 'Jost', sans-serif;
     font-size: 14px;
-    color: var(--gg-dark);
-    appearance: none;
+    color: var(--gg-dark, #000000) !important;
+    text-align: left;
     cursor: pointer;
   }
 
@@ -697,12 +974,47 @@
     height: 8px;
     transform: translateY(-50%);
     pointer-events: none;
-    color: var(--gg-dark);
+    color: var(--gg-dark, #000000) !important;
+    transition: transform 0.2s ease;
+  }
+
+  .gift-grid__select-toggle[aria-expanded='true'] .gift-grid__select-chevron {
+    transform: translateY(-50%) rotate(180deg);
   }
 
   .gift-grid__select-chevron svg {
     width: 100%;
     height: 100%;
+  }
+
+  .gift-grid__select-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 3;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--gg-light);
+    border: 1px solid var(--gg-dark);
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .gift-grid__select-option {
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--gg-dark, #000000) !important;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .gift-grid__select-option:hover,
+  .gift-grid__select-option.is-selected {
+    background: var(--gg-dark);
+    color: var(--gg-light, #ffffff) !important;
   }
 
   .gift-grid__modal-message {
@@ -721,7 +1033,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 14px;
+    gap: 16px;
     padding: 16px 28px;
     overflow: hidden;
     isolation: isolate;
@@ -729,13 +1041,13 @@
     width: 100%;
     text-decoration: none;
     font-family: 'Jost', sans-serif;
-    font-weight: 600;
+    font-weight: 500;
     font-size: 14px;
     text-transform: uppercase;
     letter-spacing: 0.08em;
     white-space: nowrap;
     background: var(--gg-dark);
-    color: var(--gg-light);
+    color: var(--gg-light, #ffffff) !important;
     cursor: pointer;
     transition: color 0.45s ease;
   }
@@ -759,12 +1071,12 @@
   }
 
   .gift-grid__btn:not(:disabled):hover {
-    color: var(--gg-dark);
+    color: var(--gg-dark, #000000) !important;
   }
 
   .gift-grid__btn-icon {
     position: relative;
-    width: 18px;
+    width: 34px;
     height: 12px;
   }
 
@@ -776,14 +1088,14 @@
   }
 
   .gift-grid__arrow--base {
-    color: var(--gg-light);
+    color: var(--gg-light, #ffffff) !important;
     opacity: 1;
     transform: translateX(0);
     transition: opacity 0.25s ease 0.18s, transform 0.3s ease 0.18s;
   }
 
   .gift-grid__arrow--hover {
-    color: var(--gg-dark);
+    color: var(--gg-dark, #000000) !important;
     opacity: 0;
     transform: translateX(-10px);
     transition: opacity 0.2s ease, transform 0.25s ease;
@@ -815,6 +1127,10 @@
       padding: 40px 20px;
     }
 
+    .gift-grid__heading {
+      display: block;
+    }
+
     .gift-grid__grid {
       grid-template-columns: repeat(2, 1fr);
     }
@@ -825,7 +1141,13 @@
 {
   "name": "Gift grid",
   "settings": [
-    { "type": "text", "id": "heading", "label": "Heading" },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Only shown on mobile, matching Figma - desktop has no heading here.",
+      "default": "Tisso vison in the wild"
+    },
     { "type": "header", "content": "Cross-sell rule" },
     {
       "type": "paragraph",
@@ -834,6 +1156,14 @@
     { "type": "product", "id": "bonus_product", "label": "Bonus product", "info": "e.g. Soft Winter Jacket" },
     { "type": "text", "id": "trigger_value_1", "label": "Trigger option value 1", "default": "Black" },
     { "type": "text", "id": "trigger_value_2", "label": "Trigger option value 2", "default": "Medium" },
+    { "type": "header", "content": "Popup typography" },
+    { "type": "paragraph", "content": "Font sizes for the quick-view popup's title, price, and description - set separately for desktop and mobile." },
+    { "type": "range", "id": "popup_title_size_desktop", "label": "Title size (desktop)", "min": 12, "max": 32, "step": 1, "unit": "px", "default": 15 },
+    { "type": "range", "id": "popup_title_size_mobile", "label": "Title size (mobile)", "min": 10, "max": 28, "step": 1, "unit": "px", "default": 14 },
+    { "type": "range", "id": "popup_price_size_desktop", "label": "Price size (desktop)", "min": 10, "max": 28, "step": 1, "unit": "px", "default": 15 },
+    { "type": "range", "id": "popup_price_size_mobile", "label": "Price size (mobile)", "min": 10, "max": 24, "step": 1, "unit": "px", "default": 14 },
+    { "type": "range", "id": "popup_description_size_desktop", "label": "Description size (desktop)", "min": 8, "max": 20, "step": 1, "unit": "px", "default": 12 },
+    { "type": "range", "id": "popup_description_size_mobile", "label": "Description size (mobile)", "min": 8, "max": 18, "step": 1, "unit": "px", "default": 11 },
     { "type": "header", "content": "Colors" },
     { "type": "color", "id": "dark_color", "label": "Dark color", "default": "#000000" },
     { "type": "color", "id": "light_color", "label": "Light color", "default": "#FFFFFF" },
