@@ -1,0 +1,525 @@
+  html.gift-grid-lock-scroll {
+    overflow: hidden;
+  }
+
+  .gift-grid {
+    --gg-side-pad: clamp(20px, 9.5vw, 190px);
+    font-family: 'Jost', sans-serif;
+    padding: 60px var(--gg-side-pad);
+  }
+
+  .gift-grid * {
+    box-sizing: border-box;
+  }
+
+  /* Figma only shows this heading on mobile - desktop goes straight from
+     the banner into the grid with no heading. */
+  .gift-grid__heading {
+    display: none;
+    margin: 0 0 24px;
+    text-align: center;
+    font-family: 'Lustria', Georgia, serif;
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 400;
+    color: var(--gg-dark, #000000) !important;
+  }
+
+  .gift-grid__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: clamp(8px, 1.5vw, 20px);
+  }
+
+  .gift-grid__tile {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    background: #f2f2f2;
+  }
+
+  /* Image cropping lives on its own layer so the hotspot/mini popup (on
+     .gift-grid__anchor, a sibling) are never clipped by it. */
+  .gift-grid__image-wrap {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .gift-grid__image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .gift-grid__anchor {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+  }
+
+  .gift-grid__hotspot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 0;
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--gg-dark, #000000) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+
+  .gift-grid__hotspot:hover {
+    background: #fff;
+    transform: scale(1.08);
+  }
+
+  .gift-grid__hotspot-icon {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .gift-grid__hotspot-icon span {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease, transform 0.25s ease;
+  }
+
+  .gift-grid__hotspot-close {
+    opacity: 0;
+    transform: rotate(-45deg) scale(0.7);
+  }
+
+  .gift-grid__hotspot.is-open .gift-grid__hotspot-plus {
+    opacity: 0;
+    transform: rotate(45deg) scale(0.7);
+  }
+
+  .gift-grid__hotspot.is-open .gift-grid__hotspot-close {
+    opacity: 1;
+    transform: rotate(0) scale(1);
+  }
+
+  /* ---- mini popup: anchored below the hotspot, inside the tile ---- */
+  .gift-grid__mini {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    max-width: min(220px, calc(100vw - 32px));
+  }
+
+  .gift-grid__mini-card {
+    background: var(--gg-light);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18);
+    cursor: pointer;
+  }
+
+  .gift-grid__mini-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  .gift-grid__mini-title {
+    margin: 0 0 4px;
+    font-size: 14px;
+    color: var(--gg-dark, #000000) !important;
+    white-space: nowrap;
+  }
+
+  .gift-grid__mini-price {
+    margin: 0;
+    font-size: 15px;
+    color: var(--gg-dark, #000000) !important;
+  }
+
+  /* ---- full quick-view modal ---- */
+  .gift-grid__overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .gift-grid__overlay[hidden] {
+    display: none;
+  }
+
+  .gift-grid__backdrop {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(30px) brightness(0.55);
+    transform: scale(1.15);
+    cursor: pointer;
+  }
+
+  .gift-grid__popup {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+
+  /* close button sits inside the modal card's own top-right corner */
+  .gift-grid__close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 0;
+    background: var(--gg-light);
+    color: var(--gg-dark, #000000) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1;
+  }
+
+  .gift-grid__close svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .gift-grid__modal-card {
+    position: relative;
+    background: var(--gg-light);
+    /* JS repositions this near the clicked tile (position: fixed, explicit
+       left/top) once it's open, so the width already reserves the same
+       16px margin used there. */
+    width: min(calc(100vw - 32px), 340px);
+    margin: 0 auto;
+    padding: 40px 24px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .gift-grid__modal-top {
+    display: flex;
+    gap: 14px;
+  }
+
+  .gift-grid__modal-image {
+    width: 70px;
+    height: 86px;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+
+  /* image + title/price/description all sit together in one column,
+     matching Figma - description is NOT a separate full-width block */
+  .gift-grid__modal-info {
+    min-width: 0;
+  }
+
+  .gift-grid__modal-title {
+    margin: 0 0 4px;
+    font-size: var(--gg-title-size-desktop, 15px);
+    color: var(--gg-dark, #000000) !important;
+  }
+
+  .gift-grid__modal-price {
+    margin: 0 0 6px;
+    font-size: var(--gg-price-size-desktop, 15px);
+    color: var(--gg-dark, #000000) !important;
+  }
+
+  .gift-grid__modal-description {
+    margin: 0;
+    font-size: var(--gg-description-size-desktop, 12px);
+    line-height: 1.45;
+    color: #666;
+  }
+
+  .gift-grid__modal-description p {
+    margin: 0;
+  }
+
+  @media screen and (max-width: 749px) {
+    .gift-grid__modal-title {
+      font-size: var(--gg-title-size-mobile, 14px);
+    }
+
+    .gift-grid__modal-price {
+      font-size: var(--gg-price-size-mobile, 14px);
+    }
+
+    .gift-grid__modal-description {
+      font-size: var(--gg-description-size-mobile, 11px);
+    }
+  }
+
+  .gift-grid__modal-options {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .gift-grid__option-label {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: var(--gg-dark, #000000) !important;
+  }
+
+  .gift-grid__pills {
+    position: relative;
+    display: flex;
+    border: 1px solid var(--gg-dark);
+    overflow: hidden;
+  }
+
+  .gift-grid__pill-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: calc(100% / var(--count, 1));
+    background: var(--gg-dark);
+    opacity: 0;
+    transition: transform 0.35s cubic-bezier(0.65, 0, 0.35, 1);
+    z-index: 0;
+  }
+
+  .gift-grid__pill {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+    padding: 14px 8px 14px 18px;
+    border: 0;
+    border-right: 1px solid var(--gg-dark);
+    background: transparent;
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    color: var(--gg-dark, #000000) !important;
+    cursor: pointer;
+    transition: color 0.3s ease;
+  }
+
+  /* full-height color indicator flush against the pill's own left edge */
+  .gift-grid__pill-swatch {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+  }
+
+  .gift-grid__pill:last-child {
+    border-right: 0;
+  }
+
+  .gift-grid__pill.is-selected {
+    color: var(--gg-light, #ffffff) !important;
+  }
+
+  .gift-grid__select-wrap {
+    position: relative;
+  }
+
+  /* Custom dropdown (button + listbox) instead of a native <select>, so
+     every state - including hover - is reliably styleable across browsers. */
+  .gift-grid__select-toggle {
+    width: 100%;
+    padding: 14px 40px 14px 14px;
+    border: 1px solid var(--gg-dark);
+    background: var(--gg-light);
+    font-family: 'Jost', sans-serif;
+    font-size: 14px;
+    color: var(--gg-dark, #000000) !important;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .gift-grid__select-chevron {
+    position: absolute;
+    top: 50%;
+    right: 14px;
+    width: 12px;
+    height: 8px;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--gg-dark, #000000) !important;
+    transition: transform 0.2s ease;
+  }
+
+  .gift-grid__select-toggle[aria-expanded='true'] .gift-grid__select-chevron {
+    transform: translateY(-50%) rotate(180deg);
+  }
+
+  .gift-grid__select-chevron svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .gift-grid__select-list {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    z-index: 3;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    background: var(--gg-light);
+    border: 1px solid var(--gg-dark);
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  }
+
+  .gift-grid__select-option {
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--gg-dark, #000000) !important;
+    text-align: center;
+    cursor: pointer;
+  }
+
+  .gift-grid__select-option:hover,
+  .gift-grid__select-option.is-selected {
+    background: var(--gg-dark);
+    color: var(--gg-light, #ffffff) !important;
+  }
+
+  .gift-grid__modal-message {
+    margin: 0;
+    font-size: 13px;
+    color: #1a7a3c;
+  }
+
+  .gift-grid__modal-message.is-error {
+    color: #c0392b;
+  }
+
+  /* ---- add to cart button (shared hover fill + arrow swap pattern) ---- */
+  .gift-grid__btn {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 16px 28px;
+    overflow: hidden;
+    isolation: isolate;
+    border: 0;
+    width: 100%;
+    text-decoration: none;
+    font-family: 'Jost', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    background: var(--gg-dark);
+    color: var(--gg-light, #ffffff) !important;
+    cursor: pointer;
+    transition: color 0.45s ease;
+  }
+
+  .gift-grid__btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .gift-grid__btn-fill {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: var(--gg-accent);
+    transform: translateX(-100%);
+    transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+  }
+
+  .gift-grid__btn:not(:disabled):hover .gift-grid__btn-fill {
+    transform: translateX(0);
+  }
+
+  .gift-grid__btn:not(:disabled):hover {
+    color: var(--gg-dark, #000000) !important;
+  }
+
+  .gift-grid__btn-icon {
+    position: relative;
+    width: 34px;
+    height: 12px;
+  }
+
+  .gift-grid__btn-icon svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .gift-grid__arrow--base {
+    color: var(--gg-light, #ffffff) !important;
+    opacity: 1;
+    transform: translateX(0);
+    transition: opacity 0.25s ease 0.18s, transform 0.3s ease 0.18s;
+  }
+
+  .gift-grid__arrow--hover {
+    color: var(--gg-dark, #000000) !important;
+    opacity: 0;
+    transform: translateX(-10px);
+    transition: opacity 0.2s ease, transform 0.25s ease;
+  }
+
+  .gift-grid__btn:not(:disabled):hover .gift-grid__arrow--base {
+    opacity: 0;
+    transform: translateX(10px);
+    transition-delay: 0s;
+  }
+
+  .gift-grid__btn:not(:disabled):hover .gift-grid__arrow--hover {
+    opacity: 1;
+    transform: translateX(0);
+    transition-delay: 0.18s;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gift-grid__btn-fill,
+    .gift-grid__arrow--base,
+    .gift-grid__arrow--hover,
+    .gift-grid__pill-indicator {
+      transition: none;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .gift-grid {
+      padding: 40px 20px;
+    }
+
+    .gift-grid__heading {
+      display: block;
+    }
+
+    .gift-grid__grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }

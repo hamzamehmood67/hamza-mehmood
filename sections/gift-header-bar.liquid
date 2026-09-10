@@ -1,0 +1,97 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
+{{ 'gift-header-bar.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign button_link = section.settings.button_link
+-%}
+
+<div
+  class="gift-header-bar"
+  style="
+    --ghb-dark: {{ section.settings.dark_color }};
+    --ghb-light: {{ section.settings.light_color }};
+    --ghb-accent: {{ section.settings.accent_color }};
+    --ghb-bg: {{ section.settings.bar_bg }};
+    --ghb-logo-size-desktop: {{ section.settings.logo_size_desktop }}px;
+    --ghb-logo-size-mobile: {{ section.settings.logo_size_mobile }}px;
+    --ghb-text-size-desktop: {{ section.settings.text_size_desktop }}px;
+    --ghb-text-size-mobile: {{ section.settings.text_size_mobile }}px;
+  "
+>
+  <div class="gift-header-bar__row">
+    <button
+      type="button"
+      class="gift-header-bar__toggle"
+      aria-expanded="false"
+      aria-controls="gift-header-bar-panel-{{ section.id }}"
+    >
+      <span class="gift-header-bar__toggle-icon" aria-hidden="true">
+        <svg class="gift-header-bar__icon-burger" viewBox="0 0 18 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0 1H18M0 7H18M0 13H18" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <svg class="gift-header-bar__icon-close" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 1L17 17M17 1L1 17" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="visually-hidden">Menu</span>
+    </button>
+
+    {%- if section.settings.logo_text != blank -%}
+      <p class="gift-header-bar__logo">{{ section.settings.logo_text }}</p>
+    {%- endif -%}
+  </div>
+
+  <div class="gift-header-bar__panel" id="gift-header-bar-panel-{{ section.id }}">
+    <div class="gift-header-bar__panel-inner">
+      {%- if section.settings.middle_text != blank -%}
+        <p class="gift-header-bar__text">{{ section.settings.middle_text }}</p>
+      {%- endif -%}
+
+      {%- if section.settings.button_label != blank -%}
+        <a
+          {% if button_link != blank %}href="{{ button_link }}"{% else %}role="link" aria-disabled="true"{% endif %}
+          class="gift-header-bar__btn"
+        >
+          <span class="gift-header-bar__btn-fill" aria-hidden="true"></span>
+          <span class="gift-header-bar__btn-label">{{ section.settings.button_label }}</span>
+          <span class="gift-header-bar__btn-icon" aria-hidden="true">
+            {%- render 'gift-banner-arrow', class: 'gift-header-bar__arrow--base' -%}
+            {%- render 'gift-banner-arrow', class: 'gift-header-bar__arrow--hover' -%}
+          </span>
+        </a>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+<script src="{{ 'gift-header-bar.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "Gift header bar",
+  "settings": [
+    { "type": "text", "id": "logo_text", "label": "Logo text", "default": "TISSO VISON" },
+    { "type": "text", "id": "middle_text", "label": "Middle text", "default": "Find the ideal gift for your loved ones." },
+    { "type": "text", "id": "button_label", "label": "Button label", "default": "CHOOSE GIFT" },
+    { "type": "url", "id": "button_link", "label": "Button link" },
+    { "type": "color", "id": "bar_bg", "label": "Background", "default": "#F5F5F5" },
+
+    { "type": "header", "content": "Typography" },
+    { "type": "paragraph", "content": "Font sizes for the logo and middle text - set separately for desktop and mobile." },
+    { "type": "range", "id": "logo_size_desktop", "label": "Logo size (desktop)", "min": 14, "max": 40, "step": 1, "unit": "px", "default": 22 },
+    { "type": "range", "id": "logo_size_mobile", "label": "Logo size (mobile)", "min": 12, "max": 32, "step": 1, "unit": "px", "default": 18 },
+    { "type": "range", "id": "text_size_desktop", "label": "Middle text size (desktop)", "min": 10, "max": 24, "step": 1, "unit": "px", "default": 14 },
+    { "type": "range", "id": "text_size_mobile", "label": "Middle text size (mobile)", "min": 10, "max": 20, "step": 1, "unit": "px", "default": 13 },
+
+    { "type": "header", "content": "Colors" },
+    { "type": "color", "id": "dark_color", "label": "Dark color", "default": "#000000" },
+    { "type": "color", "id": "light_color", "label": "Light color", "default": "#FFFFFF" },
+    { "type": "color", "id": "accent_color", "label": "Accent color", "default": "#FFF544" }
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  }
+}
+{% endschema %}
